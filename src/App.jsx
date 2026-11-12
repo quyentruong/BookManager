@@ -546,7 +546,7 @@ function App() {
 
     const handleSettingsClose = useCallback(async savedConfig => {
         setShowSettings(false);
-        const savedLang = savedConfig?.language || savedConfig?.lang || config?.language || config?.lang || 'ko';
+        const savedLang = savedConfig?.language || savedConfig?.lang || config?.language || config?.lang || 'en';
         await changeLanguage(savedLang);
     }, [changeLanguage, config]);
 
@@ -555,7 +555,7 @@ function App() {
         try {
             savedConfig = await setConfig(updatedConfig) || updatedConfig;
         } catch (error) {
-            const savedLang = config?.language || config?.lang || 'ko';
+            const savedLang = config?.language || config?.lang || 'en';
             await Promise.allSettled([changeLanguage(savedLang), reloadConfig()]);
             const messages = {
                 ko: '설정을 저장하지 못했습니다. 다시 적용해 주세요.',

@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { setLanguage, translate, SUPPORTED_LANGUAGES } from '../utils/i18n.js';
 
 export function useI18n(config = null) {
-  const [language, setLanguageState] = useState('ko');
+  const [language, setLanguageState] = useState('en');
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -10,7 +10,7 @@ export function useI18n(config = null) {
     const initI18n = async () => {
       try {
         const config = await window.electronAPI?.getConfig?.();
-        const lang = config?.language || config?.lang || 'ko';
+        const lang = config?.language || config?.lang || 'en';
         const nextLang = setLanguage(lang);
         if (mountedRef.current) setLanguageState(nextLang);
       } catch (error) {

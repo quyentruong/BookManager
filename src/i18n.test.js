@@ -36,8 +36,8 @@ test('한국어, 영어, 일본어는 동일한 원본 번역 키 집합을 제�
     }
 });
 
-test('지원하지 않는 언어와 누락된 현지어 문구는 한국어로 fallback한다', () => {
-    assert.equal(translate('tab_folders', 'unknown'), legacyTranslations.ko.tab_folders);
+test('지원하지 않는 언어와 누락된 현지어 문구는 영어로 fallback한다', () => {
+    assert.equal(translate('tab_folders', 'unknown'), legacyTranslations.en.tab_folders);
     assert.equal(translate('folder.status.files_found', 'en', { count: 3 }), '3 files found');
 });
 

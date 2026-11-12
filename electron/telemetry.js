@@ -302,7 +302,7 @@ export function createTelemetry(options = {}) {
         configuration = {
             telemetry_error_reports: config.telemetry_error_reports === true,
             telemetry_usage_stats: config.telemetry_usage_stats === true,
-            language: APP_LANGUAGES.has(language) ? language : 'ko',
+            language: APP_LANGUAGES.has(language) ? language : 'en',
         };
         const next = getTelemetryStatus();
         if (!next.errorReportsEnabled) cancel('errors');

@@ -8,7 +8,7 @@ const MESSAGE_TYPES = new Set(['info', 'warning', 'error', 'question']);
 const QUESTION_BUTTONS = new Set(['yes-no', 'yes-no-cancel', 'append-replace-cancel']);
 
 function normalizeLanguage(language) {
-    return ['ko', 'en', 'ja'].includes(language) ? language : 'ko';
+    return ['ko', 'en', 'ja'].includes(language) ? language : 'en';
 }
 
 export function createMessageDialogOptions(options = {}) {

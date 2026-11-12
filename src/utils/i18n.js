@@ -3219,10 +3219,10 @@ const ALIASES = {
   },
 };
 
-let currentLanguage = 'ko';
+let currentLanguage = 'en';
 
 function normalizeLanguage(lang) {
-  return SUPPORTED_LANGUAGES.includes(lang) ? lang : 'ko';
+  return SUPPORTED_LANGUAGES.includes(lang) ? lang : 'en';
 }
 
 function getByPath(source, key) {

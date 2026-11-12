@@ -20,7 +20,7 @@ const EXIT_LABELS = Object.freeze({
 });
 
 export function normalizeRuntimeState(state = {}) {
-    const language = ['ko', 'en', 'ja'].includes(state.language) ? state.language : 'ko';
+    const language = ['ko', 'en', 'ja'].includes(state.language) ? state.language : 'en';
     return {
         isWorking: Boolean(state.isWorking),
         language,
@@ -28,8 +28,8 @@ export function normalizeRuntimeState(state = {}) {
     };
 }
 
-export function createExitDialogOptions(language = 'ko') {
-    const labels = EXIT_LABELS[language] || EXIT_LABELS.ko;
+export function createExitDialogOptions(language = 'en') {
+    const labels = EXIT_LABELS[language] || EXIT_LABELS.en;
     return {
         type: 'question',
         title: labels.title,

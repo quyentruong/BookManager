@@ -6,7 +6,7 @@ import {
 } from '../../src/utils/i18n.js';
 
 export async function setupI18n(lang) {
-  setLanguage(lang || 'ko');
+  setLanguage(lang || 'en');
 }
 
 export function t(key, values) {

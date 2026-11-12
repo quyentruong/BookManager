@@ -381,7 +381,7 @@ async function initializeApp() {
         serviceConfig: readTelemetryServiceConfig(app.getAppPath()),
     });
     setupTelemetryIPC({ ipcMain, distIndexPath: DIST_INDEX_PATH, devServerUrl: useDevServer ? DEV_SERVER_URL : '' });
-  await setupI18n(config?.lang || 'ko');
+  await setupI18n(config?.lang || 'en');
 
   // IPC 핸들러 설정
   ipcController = setupIPCHandlers(

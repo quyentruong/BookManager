@@ -5,7 +5,7 @@ const LABELS = Object.freeze({
 });
 
 export function createLibrarySyncDialogOptions(options = {}) {
-    const language = ['ko', 'en', 'ja'].includes(options.language) ? options.language : 'ko';
+    const language = ['ko', 'en', 'ja'].includes(options.language) ? options.language : 'en';
     return {
         type: 'question',
         title: String(options.title || ''),

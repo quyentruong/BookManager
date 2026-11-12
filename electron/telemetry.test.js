@@ -81,7 +81,7 @@ test('usage payloads use fixed identifiers and never include book data, paths or
     assert.deepEqual(Object.keys(first).sort(), ['api_key', 'event', 'properties', 'timestamp', 'uuid']);
     assert.deepEqual(first.properties, {
         feature: 'text-cleaner', format: 'text', source: 'ipc', duration_ms: 13,
-        distinct_id: first.properties.distinct_id, app_version: '3.2.1', app_language: 'ko', os: process.platform,
+        distinct_id: first.properties.distinct_id, app_version: '3.2.1', app_language: 'en', os: process.platform,
         $process_person_profile: false, $geoip_disable: true, $ip: null,
     });
     assert.match(first.properties.distinct_id, /^[0-9a-f-]{36}$/);
@@ -97,9 +97,9 @@ test('usage events include only the supported app language from settings', async
         [{ language: 'en', lang: 'ja' }, 'en'],
         [{ language: 'ja' }, 'ja'],
         [{ lang: 'en' }, 'en'],
-        [{}, 'ko'],
-        [{ language: '/private/setting', lang: 'en' }, 'ko'],
-        [{ language: { value: 'en' } }, 'ko'],
+        [{}, 'en'],
+        [{ language: '/private/setting', lang: 'en' }, 'en'],
+        [{ language: { value: 'en' } }, 'en'],
     ]) {
         const { telemetry, requests } = setup(t, {}, { ...CONSENT, ...config });
         telemetry.trackTelemetryEvent({ event: 'menu_opened', menu: 'folder', app_language: 'ja', language: '/private/event' });
@@ -138,7 +138,7 @@ test('dashboard navigation and recommendation refresh clicks use only fixed iden
     for (const event of events.filter(event => event.event === 'feature_used')) {
         assert.deepEqual(event.properties, {
             feature: 'daily-recommendation-refresh', source: 'renderer',
-            distinct_id: event.properties.distinct_id, app_version: '3.2.1', app_language: 'ko', os: process.platform,
+            distinct_id: event.properties.distinct_id, app_version: '3.2.1', app_language: 'en', os: process.platform,
             $process_person_profile: false, $geoip_disable: true, $ip: null,
         });
     }

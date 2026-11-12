@@ -25,7 +25,7 @@ test('렌더러 종료 상태를 안전한 기본값으로 정규화한다', () 
         language: 'en',
         activeTab: 'renamer',
     });
-    assert.equal(normalizeRuntimeState({ language: 'invalid' }).language, 'ko');
+    assert.equal(normalizeRuntimeState({ language: 'invalid' }).language, 'en');
 });
 
 test('종료 거부는 작업 취소와 창 닫기를 진행하지 않는다', () => {

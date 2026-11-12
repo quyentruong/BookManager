@@ -654,8 +654,8 @@ function SettingsModal({ isOpen = true, onClose, config, onSave, onPersistViewer
     const providerGuideText = providerGuide?.guideKey
         ? t(providerGuide.guideKey)
         : providerGuide?.text?.[localConfig.language || localConfig.lang] || providerGuide?.text?.ko;
-    const regionNames = new Intl.DisplayNames([localConfig.lang || 'ko'], { type: 'region' });
-    const languageNames = new Intl.DisplayNames([localConfig.lang || 'ko'], { type: 'language' });
+    const regionNames = new Intl.DisplayNames([localConfig.lang || 'en'], { type: 'region' });
+    const languageNames = new Intl.DisplayNames([localConfig.lang || 'en'], { type: 'language' });
     const countryLabel = country => regionNames.of(country.toUpperCase() === 'UK' ? 'GB' : country.toUpperCase());
     const itunesCountries = [...new Set([...ITUNES_COUNTRIES, providerSettings.itunes_country])];
   const bundledFontOptions = bundledFontOptionsFromFaces(bundledFontFaces);
@@ -1298,7 +1298,7 @@ function SettingsModal({ isOpen = true, onClose, config, onSave, onPersistViewer
                             <legend>{t('settings.sections.appearance')}</legend>
                             <div className="settings-row settings-control-field">
                                 <label className="settings-label" htmlFor="settings-language">{t('lang_lbl')}</label>
-                                <select id="settings-language" className="settings-select" value={localConfig.language || localConfig.lang || 'ko'} onChange={event => handleLanguageChange(event.target.value)}>
+                                <select id="settings-language" className="settings-select" value={localConfig.language || localConfig.lang || 'en'} onChange={event => handleLanguageChange(event.target.value)}>
                                     {LANGUAGE_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
                                 </select>
                             </div>

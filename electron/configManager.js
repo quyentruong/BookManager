@@ -17,7 +17,7 @@ const AUDIO_METADATA_API_SOURCES = new Set([...BOOK_METADATA_API_SOURCES, 'Audib
 const AI_PROVIDERS = new Set(['Gemini', 'OpenAI']);
 const VIEWER_PROGRAM_TYPES = ['comic', 'epub', 'pdf', 'text'];
 
-function normalizeLanguage(value, fallback = 'ko') {
+function normalizeLanguage(value, fallback = 'en') {
   return SUPPORTED_LANGUAGES.has(value) ? value : fallback;
 }
 
@@ -288,8 +288,8 @@ export class ConfigManager {
     const defaultThreads = Math.max(1, Math.floor(totalCores * 0.5));
 
     return {
-      lang: 'ko',
-      language: 'ko',
+      lang: 'en',
+      language: 'en',
       target_format: 'none',
       backup_on: false,
       flatten_folders: false,
@@ -302,8 +302,8 @@ export class ConfigManager {
       max_threads: defaultThreads,
       play_sound: true,
         hardware_acceleration: true,
-        telemetry_error_reports: true,
-        telemetry_usage_stats: true,
+        telemetry_error_reports: false,
+        telemetry_usage_stats: false,
       viewer_path: '',
       viewer_paths: {
         comic: '',

@@ -26,7 +26,7 @@ export const ARCHIVE_MIME_TYPES = new Map([
 function sharingLanguage(config = {}) {
     return ['ko', 'en', 'ja'].includes(config.language)
         ? config.language
-        : ['ko', 'en', 'ja'].includes(config.lang) ? config.lang : 'ko';
+        : ['ko', 'en', 'ja'].includes(config.lang) ? config.lang : 'en';
 }
 
 export function sharingText(config, key, fallback, values) {

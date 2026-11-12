@@ -32,10 +32,10 @@ function normalizeLanguage(language = '') {
     const normalized = String(language || '').trim().toLowerCase().split(/[-_]/)[0];
     return Object.prototype.hasOwnProperty.call(AUDIOBOOK_CLOSE_LABELS, normalized)
         ? normalized
-        : 'ko';
+        : 'en';
 }
 
-export function createAudiobookCloseDialogOptions(language = 'ko') {
+export function createAudiobookCloseDialogOptions(language = 'en') {
     const labels = AUDIOBOOK_CLOSE_LABELS[normalizeLanguage(language)];
     return {
         type: 'question',

@@ -21,7 +21,7 @@ test('오디오북 닫기 다이얼로그는 전환, 닫기, 취소를 표시하
 test('오디오북 닫기 다이얼로그는 설정 언어에 맞는 버튼을 사용한다', () => {
     assert.deepEqual(createAudiobookCloseDialogOptions('en-US').buttons, ['Switch', 'Close', 'Cancel']);
     assert.deepEqual(createAudiobookCloseDialogOptions('ja_JP').buttons, ['切り替え', '閉じる', 'キャンセル']);
-    assert.equal(createAudiobookCloseDialogOptions('unsupported').message, '미니플레이어로 전환 하시겠습니까?');
+    assert.equal(createAudiobookCloseDialogOptions('unsupported').message, 'Would you like to switch to the mini player?');
 });
 
 test('오디오북 닫기 응답은 안전한 동작으로 변환한다', () => {

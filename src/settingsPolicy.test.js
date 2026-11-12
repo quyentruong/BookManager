@@ -36,14 +36,14 @@ test('애니메이션 설정은 기본값을 보완하고 저장할 세 선택�
     assert.equal(settingsConfigsEqual(defaults, { ...defaults, motion_preference: 'reduced' }), false);
 });
 
-test('telemetry settings default to enabled and preserve independent opt-outs', () => {
+test('telemetry settings default to disabled and preserve independent opt-ins', () => {
     const defaults = normalizeSettingsConfig();
-    assert.equal(defaults.telemetry_error_reports, true);
-    assert.equal(defaults.telemetry_usage_stats, true);
+    assert.equal(defaults.telemetry_error_reports, false);
+    assert.equal(defaults.telemetry_usage_stats, false);
 
     const legacyConfig = normalizeSettingsConfig({ language: 'en', telemetry_error_reports: undefined });
-    assert.equal(legacyConfig.telemetry_error_reports, true);
-    assert.equal(legacyConfig.telemetry_usage_stats, true);
+    assert.equal(legacyConfig.telemetry_error_reports, false);
+    assert.equal(legacyConfig.telemetry_usage_stats, false);
 
     for (const value of [null, false, 'true', 'false', 1, {}, []]) {
         const normalized = normalizeSettingsConfig({
@@ -54,15 +54,15 @@ test('telemetry settings default to enabled and preserve independent opt-outs', 
         assert.equal(normalized.telemetry_usage_stats, false);
     }
 
-    const errorOnly = normalizeSettingsConfig({ telemetry_usage_stats: false });
+    const errorOnly = normalizeSettingsConfig({ telemetry_error_reports: true });
     assert.equal(errorOnly.telemetry_error_reports, true);
     assert.equal(errorOnly.telemetry_usage_stats, false);
-    const usageOnly = normalizeSettingsConfig({ telemetry_error_reports: false });
+    const usageOnly = normalizeSettingsConfig({ telemetry_usage_stats: true });
     assert.equal(usageOnly.telemetry_error_reports, false);
     assert.equal(usageOnly.telemetry_usage_stats, true);
-    const optedOut = normalizeSettingsConfig({ telemetry_error_reports: false, telemetry_usage_stats: false });
-    assert.equal(normalizeSettingsConfig(optedOut).telemetry_error_reports, false);
-    assert.equal(normalizeSettingsConfig(optedOut).telemetry_usage_stats, false);
+    const optedIn = normalizeSettingsConfig({ telemetry_error_reports: true, telemetry_usage_stats: true });
+    assert.equal(normalizeSettingsConfig(optedIn).telemetry_error_reports, true);
+    assert.equal(normalizeSettingsConfig(optedIn).telemetry_usage_stats, true);
     assert.equal(settingsEffects(defaults, usageOnly).restartRecommended, false);
 });
 

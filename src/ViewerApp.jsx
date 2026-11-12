@@ -1637,8 +1637,8 @@ function createWebViewerAPI() {
 
   return {
     getConfig: async () => {
-      const browserLanguage = (navigator.language || 'ko').split('-')[0];
-      return { language: ['ko', 'en', 'ja'].includes(browserLanguage) ? browserLanguage : 'ko' };
+      const browserLanguage = (navigator.language || 'en').split('-')[0];
+      return { language: ['ko', 'en', 'ja'].includes(browserLanguage) ? browserLanguage : 'en' };
     },
     onConfigChange: () => () => {},
     getFullscreenState: async () => fullscreenState(),
@@ -7107,7 +7107,7 @@ function ViewerApp() {
     let mounted = true;
     let configChanged = false;
     const applyViewerLanguage = config => {
-      const nextLanguage = setLanguage(config?.language || config?.lang || 'ko');
+      const nextLanguage = setLanguage(config?.language || config?.lang || 'en');
       if (mounted) {
         applyMotionPreference(config?.motion_preference);
         if (config && Object.prototype.hasOwnProperty.call(config, 'readingLibraryPaths')) {
@@ -8973,7 +8973,7 @@ function ViewerApp() {
     if (!text) return;
     const encodedText = encodeURIComponent(text);
     if (provider === 'wikipedia') {
-        const language = ['ko', 'en', 'ja'].includes(viewerLanguage) ? viewerLanguage : 'ko';
+        const language = ['ko', 'en', 'ja'].includes(viewerLanguage) ? viewerLanguage : 'en';
         void openLookupWindow(
             `https://${language}.wikipedia.org/w/index.php?search=${encodedText}`,
             viewerText('viewer.context.dictionary_wikipedia', '위키피디아'),
@@ -8992,7 +8992,7 @@ function ViewerApp() {
   const openSelectionTranslation = useCallback(provider => {
     const text = selectionQueryText(selectionMenu?.text);
     if (!text) return;
-    const targetLanguage = ['ko', 'en', 'ja'].includes(viewerLanguage) ? viewerLanguage : 'ko';
+    const targetLanguage = ['ko', 'en', 'ja'].includes(viewerLanguage) ? viewerLanguage : 'en';
     const encodedText = encodeURIComponent(text);
     const url = provider === 'deepl'
       ? `https://www.deepl.com/translator#auto/${targetLanguage}/${encodedText}`
