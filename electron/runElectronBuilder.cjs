@@ -20,12 +20,13 @@ const args = rawArgs.filter(arg => (
 const originalElectronBuilderCache = process.env.ELECTRON_BUILDER_CACHE;
 const hasWindowsTarget = args.includes('--win') || args.includes('-w');
 const hasMacTarget = args.includes('--mac') || args.includes('-m');
+const hasLinuxTarget = args.includes('--linux') || args.includes('-l');
 const hasExplicitTarget = hasWindowsTarget
     || hasMacTarget
-    || args.includes('--linux')
-    || args.includes('-l');
+    || hasLinuxTarget;
 const isWindowsBuild = hasWindowsTarget || (!hasExplicitTarget && process.platform === 'win32');
 const isMacBuild = hasMacTarget || (!hasExplicitTarget && process.platform === 'darwin');
+const isLinuxBuild = hasLinuxTarget || (!hasExplicitTarget && process.platform === 'linux');
 const env = { ...process.env };
 
 if (isWindowsBuild && env.CSC_IDENTITY_AUTO_DISCOVERY === undefined) {
@@ -154,6 +155,41 @@ async function ensureWinCodeSignCache(cacheRoot = projectElectronBuilderCache())
     }
 }
 
+function hasConfigArg(cliArgs) {
+    return cliArgs.some(arg => (
+        arg === '--config'
+        || arg === '-c'
+        || arg.startsWith('--config=')
+        || arg.startsWith('-c.')
+    ));
+}
+
+function createLinuxBuilderConfig() {
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    // electron-builder 24 AppImage target passes array ext values directly to app-builder,
+    // which expects a single string per entry and fails JSON decoding.
+    const buildConfig = {
+        ...(packageJson.build || {}),
+        fileAssociations: [],
+    };
+    const tempConfigPath = path.join(
+        os.tmpdir(),
+        `bookmanager-linux-builder-${process.pid}-${Date.now()}.json`,
+    );
+    fs.writeFileSync(tempConfigPath, JSON.stringify(buildConfig, null, 2));
+    return tempConfigPath;
+}
+
+function removeFileQuietly(filePath) {
+    if (!filePath) return;
+    try {
+        fs.rmSync(filePath, { force: true });
+    } catch {
+        // Ignore cleanup failure for temporary builder config.
+    }
+}
+
 async function main() {
     if (prepareOnly) {
         if (process.platform === 'win32') {
@@ -175,18 +211,27 @@ async function main() {
         if (result.skipped) throw new Error(result.reason);
     }
 
+    const cliArgs = [...args];
+    let tempLinuxConfigPath = null;
+    if (isLinuxBuild && !hasConfigArg(cliArgs)) {
+        tempLinuxConfigPath = createLinuxBuilderConfig();
+        cliArgs.push('--config', tempLinuxConfigPath);
+    }
+
     const cliPath = require.resolve('electron-builder/out/cli/cli.js');
-    const child = spawn(process.execPath, [cliPath, ...args], {
+    const child = spawn(process.execPath, [cliPath, ...cliArgs], {
         stdio: 'inherit',
         env,
     });
 
     child.on('error', error => {
+        removeFileQuietly(tempLinuxConfigPath);
         console.error(error);
         process.exit(1);
     });
 
     child.on('exit', (code, signal) => {
+        removeFileQuietly(tempLinuxConfigPath);
         if (signal) {
             process.kill(process.pid, signal);
             return;

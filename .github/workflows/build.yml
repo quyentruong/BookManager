@@ -2,6 +2,16 @@ name: Build Windows and Linux
 
 on:
     workflow_dispatch:
+        inputs:
+            platform:
+                description: Platform to build
+                required: true
+                default: all
+                type: choice
+                options:
+                    - all
+                    - windows
+                    - linux
     push:
         tags:
             - 'v*'
@@ -10,27 +20,39 @@ permissions:
     contents: write
 
 jobs:
-    build:
-        name: Build (${{ matrix.platform }})
-        runs-on: ${{ matrix.os }}
-        strategy:
-            fail-fast: false
-            matrix:
-                include:
-                    - platform: windows
-                      os: windows-latest
-                      build_script: electron:build:win
-                      artifact_name: BookManager-windows
-                      artifact_paths: |
-                          dist-electron/BookManager.exe
-                          dist-electron/BookManager-win.zip
-                    - platform: linux
-                      os: ubuntu-latest
-                      build_script: electron:build:linux
-                      artifact_name: BookManager-linux
-                      artifact_paths: |
-                          dist-electron/*.AppImage
+    build-windows:
+        name: Build (Windows)
+        if: github.event_name != 'workflow_dispatch' || inputs.platform == 'all' || inputs.platform == 'windows'
+        runs-on: windows-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Build Windows application
+              run: npm run electron:build:win -- --publish never
+
+            - name: Upload Windows artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: BookManager-windows
+                  path: |
+                      dist-electron/BookManager.exe
+                      dist-electron/BookManager-win.zip
+                  if-no-files-found: error
+
+    build-linux:
+        name: Build (Linux)
+        if: github.event_name != 'workflow_dispatch' || inputs.platform == 'all' || inputs.platform == 'linux'
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -46,22 +68,24 @@ jobs:
                   ONNXRUNTIME_NODE_INSTALL: 'skip'
               run: npm ci
 
-            - name: Build application
+            - name: Build Linux application
               env:
                   APPIMAGE_EXTRACT_AND_RUN: '1'
-              run: npm run ${{ matrix.build_script }} -- --publish never
+              run: npm run electron:build:linux -- --publish never
 
-            - name: Upload build artifacts
+            - name: Upload Linux artifacts
               uses: actions/upload-artifact@v4
               with:
-                  name: ${{ matrix.artifact_name }}
-                  path: ${{ matrix.artifact_paths }}
+                  name: BookManager-linux
+                  path: dist-electron/*.AppImage
                   if-no-files-found: error
 
     release:
         name: Publish GitHub Release
-        needs: build
-        if: startsWith(github.ref, 'refs/tags/v')
+        needs:
+            - build-windows
+            - build-linux
+        if: startsWith(github.ref, 'refs/tags/v') && needs.build-windows.result == 'success' && needs.build-linux.result == 'success'
         runs-on: ubuntu-latest
         steps:
             - name: Download build artifacts
