@@ -344,12 +344,15 @@ test('메타데이터 표지 로드와 분석은 7z 하위 폴더의 느낌표 �
     }
 });
 
-test('메타데이터 분석은 DB의 전역 후보와 설정 언어 기본값을 반환한다', async () => {
+test('메타데이터 분석은 DB의 전역 후보를 반환하고 LanguageISO와 만화 Format 기본값을 채우지 않는다', async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'bookmanager-metadata-publishers-'));
     try {
         const source = path.join(root, '소설책 02권.txt');
+        const comicSource = path.join(root, '만화책 01권.cbz');
         fs.writeFileSync(source, 'book');
-        const analyzed = await analyzeMetadataInputs([source], {
+        fs.writeFileSync(comicSource, Buffer.alloc(0));
+        await replaceZipEntry(comicSource, '001.jpg', Buffer.from('cover'));
+        const analyzed = await analyzeMetadataInputs([source, comicSource], {
             lang: 'ja',
             libraryDb: {
                 async getDistinctPublishers() {
@@ -374,7 +377,11 @@ test('메타데이터 분석은 DB의 전역 후보와 설정 언어 기본값�
 
         assert.deepEqual(analyzed.publisherOptions, ['민음사', '황금가지']);
         assert.deepEqual(analyzed.seriesGroupOptions, ['판타지 세계관', '현대물']);
-        assert.equal(analyzed.items[0].metadata.LanguageISO, 'ja');
+        const txtItem = analyzed.items.find(item => item.filepath === source);
+        const comicItem = analyzed.items.find(item => item.filepath === comicSource);
+        assert.equal(txtItem.metadata.LanguageISO, '');
+        assert.equal(comicItem.metadata.LanguageISO, '');
+        assert.equal(comicItem.metadata.Format, '');
     } finally {
         fs.rmSync(root, { recursive: true, force: true });
     }

@@ -444,7 +444,7 @@ function normalizeEpubSeriesNumber(value = '') {
 
 function normalizeLanguageIso(value = '') {
   const normalized = String(value || '').trim();
-  if (!normalized) return 'ko';
+  if (!normalized) return '';
   const lower = normalized.toLowerCase();
   if (lower.startsWith('ko')) return 'ko';
   if (lower.startsWith('ja')) return 'ja';
@@ -1242,7 +1242,7 @@ function inferMetadataFromFilename(filePath, pageCount, options = {}) {
   const volumeMatch = filename.match(/(?:v|vol\.?|volume|\s)(\d+(?:\.\d+)?)(?:권)?/i);
   const title = filename.replace(/\.(zip|cbz|cbr|rar|7z)$/i, '').trim();
   const bookType = options.bookType || resolveBookType({ path: filePath });
-  const languageISO = normalizeLanguageIso(options.languageISO || options.defaultLanguageISO || options.lang || 'ko');
+  const languageISO = normalizeLanguageIso(options.languageISO || options.defaultLanguageISO || '');
   if (bookType === 'audio') {
     return {
       Title: title,
@@ -1269,8 +1269,8 @@ function inferMetadataFromFilename(filePath, pageCount, options = {}) {
     Volume: volumeMatch?.[1] || '',
     PageCount: pageCount ? String(pageCount) : '',
     Manga: '',
-    Format: 'Manga',
-    LanguageISO: 'ko',
+    Format: '',
+    LanguageISO: languageISO,
   };
 }
 
@@ -1834,7 +1834,7 @@ function rankedLatestMetadataCandidates(records = [], criteria = {}) {
 
 export async function analyzeMetadataInputs(paths, options = {}, onProgress) {
   const sevenZExe = options.sevenZExe;
-  const defaultLanguageISO = normalizeLanguageIso(options.languageISO || options.defaultLanguageISO || options.lang || 'ko');
+  const defaultLanguageISO = normalizeLanguageIso(options.languageISO || options.defaultLanguageISO || '');
   const includeCovers = options.includeCovers !== false;
 
   const archives = await expandInputPaths(paths);

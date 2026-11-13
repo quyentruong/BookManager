@@ -75,6 +75,54 @@ test('Windows portable은 임시 추출 경로 대신 원본 exe 폴더에 BookM
     assert.equal(resolveThumbnailDir(extractedExecutableDir, 'win32', env), path.join(portableDir, 'BookManagerData', 'thumbnails'));
 });
 
+test('Linux AppImage는 마운트 경로 대신 APPIMAGE 폴더 또는 사용자 데이터 폴더에 BookManagerData를 둔다', () => {
+    const mountedDir = '/tmp/.mount_BookMa123456';
+    const root = fs.mkdtempSync(path.join(process.env.TMPDIR || '/tmp', 'bookmanager-appimage-paths-'));
+    try {
+        const writableAppDir = path.join(root, 'writable-apps');
+        fs.mkdirSync(writableAppDir, { recursive: true });
+        const writableEnv = {
+            APPIMAGE: path.join(writableAppDir, 'BookManager.AppImage'),
+            APPDIR: mountedDir,
+            HOME: '/home/reader',
+        };
+        assert.equal(resolvePortableBaseDir(mountedDir, 'linux', writableEnv), writableAppDir);
+        assert.equal(resolveAppDataDir(mountedDir, 'linux', writableEnv), path.join(writableAppDir, 'BookManagerData'));
+        assert.equal(resolveConfigPath(mountedDir, 'linux', writableEnv), path.join(writableAppDir, 'BookManagerData', 'config.json'));
+
+        const extractedEnv = {
+            APPDIR: mountedDir,
+            XDG_DATA_HOME: '/home/reader/.xdg-data',
+            HOME: '/home/reader',
+        };
+        assert.equal(
+            resolveAppDataDir(mountedDir, 'linux', extractedEnv),
+            path.join('/home/reader/.xdg-data', 'BookManager', 'BookManagerData'),
+        );
+
+        if (process.getuid?.() !== 0) {
+            const readOnlyAppDir = path.join(root, 'readonly-apps');
+            fs.mkdirSync(readOnlyAppDir, { recursive: true });
+            fs.chmodSync(readOnlyAppDir, 0o555);
+            try {
+                const readOnlyEnv = {
+                    APPIMAGE: path.join(readOnlyAppDir, 'BookManager.AppImage'),
+                    APPDIR: mountedDir,
+                    HOME: '/home/reader',
+                };
+                assert.equal(
+                    resolveAppDataDir(mountedDir, 'linux', readOnlyEnv),
+                    path.join('/home/reader', '.local', 'share', 'BookManager', 'BookManagerData'),
+                );
+            } finally {
+                fs.chmodSync(readOnlyAppDir, 0o755);
+            }
+        }
+    } finally {
+        fs.rmSync(root, { recursive: true, force: true });
+    }
+});
+
 test('기존 data 폴더는 BookManagerData로 이동한다', () => {
     const root = fs.mkdtempSync(path.join(process.env.TMPDIR || '/tmp', 'bookmanager-data-paths-'));
     try {

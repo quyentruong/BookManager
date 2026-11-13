@@ -359,17 +359,6 @@ const LANGUAGE_LABELS = {
   es: 'Español (es)',
 };
 
-function languageIsoFromConfig(value = '') {
-  const normalized = String(value || '').trim().toLowerCase();
-  if (normalized.startsWith('ko')) return 'ko';
-  if (normalized.startsWith('ja')) return 'ja';
-  if (normalized.startsWith('en')) return 'en';
-  if (normalized.startsWith('zh-cn')) return 'zh-CN';
-  if (normalized.startsWith('zh-tw')) return 'zh-TW';
-  if (normalized.startsWith('zh')) return 'zh';
-  return normalized || 'ko';
-}
-
 function MetadataTab({ config, t, showToast }) {
     const metadataTabRef = useRef(null);
   useEffect(() => {
@@ -443,10 +432,6 @@ function MetadataTab({ config, t, showToast }) {
     }).filter(Boolean));
   }, []);
   const language = config?.language || config?.lang || 'ko';
-  const defaultLanguageISO = useMemo(
-    () => languageIsoFromConfig(config?.language || config?.lang || 'ko'),
-    [config?.language, config?.lang],
-  );
   const text = useCallback((key, fallback, values) => {
     const translated = t?.(key, values);
     return translated && translated !== key ? translated : fallback;
@@ -800,20 +785,11 @@ function MetadataTab({ config, t, showToast }) {
     try {
       const result = await window.electronAPI.analyzeMetadata(cleanPaths, {
         lang: config?.language || config?.lang || 'ko',
-        languageISO: defaultLanguageISO,
         includeCovers: false,
       });
       setPublisherOptions(prev => uniqueSelectOptions([...(result.publisherOptions || []), ...prev], '').filter(Boolean));
       rememberSeriesGroupOptions(result.seriesGroupOptions || []);
-      const items = (result.items || []).map(item => ({
-        ...item,
-        metadata: {
-          ...(item.metadata || {}),
-          LanguageISO: isTxtMetadataItem(item)
-            ? item.metadata?.LanguageISO ?? defaultLanguageISO
-            : item.metadata?.LanguageISO || defaultLanguageISO,
-        },
-      }));
+      const items = result.items || [];
       setFileList(prev => {
         const byPath = new Map(prev.map(item => [item.filepath, item]));
         for (const item of items) byPath.set(item.filepath, item);
@@ -851,7 +827,7 @@ function MetadataTab({ config, t, showToast }) {
       setIsWorking(false);
       setTaskPhase('idle');
     }
-  }, [config?.language, config?.lang, defaultLanguageISO, rememberSeriesGroupOptions, t]);
+  }, [config?.language, config?.lang, rememberSeriesGroupOptions, t]);
 
   const handleSelectFiles = useCallback(async () => {
     const paths = await window.electronAPI.selectFiles(t('add_file'), [{

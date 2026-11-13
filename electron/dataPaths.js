@@ -6,12 +6,45 @@ import { migrateMacAppDataDir } from './macDataMigration.js';
 export const APP_DATA_DIR_NAME = 'BookManagerData';
 export const LEGACY_APP_DATA_DIR_NAME = 'data';
 
+function isDirectoryWritable(dirPath) {
+    if (!dirPath || !fs.existsSync(dirPath)) return true;
+    try {
+        fs.accessSync(dirPath, fs.constants.W_OK | fs.constants.X_OK);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function isPathInside(parentPath, childPath) {
+    const relativePath = path.relative(path.resolve(parentPath), path.resolve(childPath));
+    return relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
+}
+
+function resolveLinuxUserDataBaseDir(env = process.env) {
+    const dataHome = env?.XDG_DATA_HOME || path.join(env?.HOME || os.homedir(), '.local', 'share');
+    return path.join(dataHome, 'BookManager');
+}
+
 export function resolvePortableBaseDir(executableDir = process.cwd(), platform = process.platform, env = process.env) {
     if (platform === 'win32' && env?.PORTABLE_EXECUTABLE_DIR) {
         return env.PORTABLE_EXECUTABLE_DIR;
     }
 
     const baseDir = executableDir || process.cwd();
+    if (platform === 'linux') {
+        if (env?.APPIMAGE) {
+            const appImageDir = path.dirname(env.APPIMAGE);
+            const appImageDataDir = path.join(appImageDir, APP_DATA_DIR_NAME);
+            const writableTarget = fs.existsSync(appImageDataDir) ? appImageDataDir : appImageDir;
+            return isDirectoryWritable(writableTarget) ? appImageDir : resolveLinuxUserDataBaseDir(env);
+        }
+        if (env?.APPDIR && isPathInside(env.APPDIR, baseDir)) {
+            return resolveLinuxUserDataBaseDir(env);
+        }
+        return baseDir;
+    }
+
     if (platform !== 'darwin') return baseDir;
 
     const normalized = path.normalize(baseDir);
